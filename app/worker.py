@@ -20,14 +20,6 @@ logger = get_logger(__name__)
 
 
 def business_logic(event: Event) -> None:
-    """Extension point: real event-processing logic goes here.
-
-    Raise any exception to signal failure. The worker will retry up to
-    settings.max_retries times (tracked in event.retry_count, with linear
-    backoff) before moving the event to the dead_letter status.
-    """
-    # Placeholder no-op. Replace with real work: call a downstream API,
-    # write to a data warehouse, trigger a notification, etc.
     if not event.event_type:
         raise ValueError("event_type must not be empty")
 
@@ -43,9 +35,6 @@ async def process_event(ctx, db_id: str) -> None:
             logger.warning("event_not_found", db_id=db_id)
             return
 
-        # Defensive check: if a duplicate job somehow got queued and this
-        # event was already finished (or is being handled by another
-        # worker right now), don't double-process it.
         if event.status in (EventStatus.COMPLETED.value, EventStatus.PROCESSING.value):
             logger.info("event_already_handled", db_id=db_id, status=event.status)
             return
@@ -125,11 +114,6 @@ class WorkerSettings:
     on_startup = startup
     on_shutdown = shutdown
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
-
-    # Business-level retries (with backoff) are handled explicitly above
-    # via event.retry_count and settings.max_retries. max_tries here is a
-    # separate, lower-level safety net for infra-level failures, e.g. the
-    # worker process crashing mid-job; arq will redeliver the job.
     max_tries = 3
     max_jobs = 20
     job_timeout = 60

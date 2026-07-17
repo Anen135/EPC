@@ -9,18 +9,13 @@ from .config import settings
 
 
 class EventIn(BaseModel):
-    """Inbound event payload. Validation here is what keeps garbage out of
-    the queue and database before it ever reaches a worker."""
-
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    event_id: str = Field(
-        ..., min_length=1, max_length=255, description="Client-supplied idempotency key, unique per event"
-    )
+    event_id: str = Field(..., min_length=1, max_length=255)
     event_type: str = Field(..., min_length=1, max_length=128)
     source: str = Field(..., min_length=1, max_length=128)
     payload: dict[str, Any] = Field(default_factory=dict)
-    occurred_at: datetime | None = Field(default=None, description="When the event actually happened")
+    occurred_at: datetime | None = None
 
     @field_validator("event_id")
     @classmethod
@@ -62,7 +57,7 @@ class BatchIn(BaseModel):
 
 class IngestResult(BaseModel):
     event_id: str
-    status: str  # "accepted" | "duplicate"
+    status: str
     id: uuid.UUID | None = None
 
 

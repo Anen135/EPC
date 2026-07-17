@@ -1,7 +1,5 @@
 from prometheus_client import Counter, Histogram
 
-# --- Ingestion-side metrics -------------------------------------------------
-
 EVENTS_RECEIVED = Counter(
     "events_received_total",
     "Total number of events received by the API, before dedup",
@@ -19,8 +17,6 @@ EVENT_QUEUE_ENQUEUED = Counter(
     "Total number of events successfully enqueued for async processing",
     ["event_type"],
 )
-
-# --- Worker-side metrics -----------------------------------------------------
 
 EVENTS_PROCESSED = Counter(
     "events_processed_total",

@@ -24,13 +24,5 @@ async def close_redis_pool() -> None:
 
 
 async def enqueue_process_event(db_id: uuid.UUID) -> None:
-    """Enqueue a job to process the event with the given primary key.
-
-    Uses a deterministic job id (process_event:<db_id>) so that if the API
-    ever enqueues the same event twice (e.g. a retried HTTP request after
-    a network blip, hitting the insert-then-enqueue path twice) arq itself
-    treats the second enqueue as a no-op rather than creating a duplicate
-    job, as an extra defensive layer on top of the DB-level uniqueness.
-    """
     pool = await get_redis_pool()
     await pool.enqueue_job("process_event", str(db_id), _job_id=f"process_event:{db_id}")

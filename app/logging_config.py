@@ -9,10 +9,6 @@ _configured = False
 
 
 def configure_logging() -> None:
-    """Configure stdlib logging + structlog to emit structured JSON (or
-    pretty console output in dev) with request-scoped context support via
-    structlog.contextvars. Idempotent - safe to call from both the API
-    process and the worker process."""
     global _configured
     if _configured:
         return
@@ -51,7 +47,6 @@ def configure_logging() -> None:
     root_logger.handlers = [handler]
     root_logger.setLevel(settings.log_level)
 
-    # Quiet noisy third-party loggers down to warnings.
     for noisy in ("uvicorn.access", "sqlalchemy.engine", "arq"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 

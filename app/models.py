@@ -21,11 +21,7 @@ class Event(Base):
     __tablename__ = "events"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-
-    # Client-supplied idempotency key. The unique constraint is what makes
-    # deduplication atomic and race-safe (see crud.insert_event).
     event_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
-
     event_type: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     source: Mapped[str] = mapped_column(String(128), nullable=False)
     payload: Mapped[dict] = mapped_column(JSONB, nullable=False)

@@ -19,16 +19,12 @@ async_session_factory = async_sessionmaker(engine, expire_on_commit=False, class
 
 
 async def get_db():
-    """FastAPI dependency yielding a request-scoped session."""
     async with async_session_factory() as session:
         yield session
 
 
 async def init_db() -> None:
-    """Create tables if they don't exist. Fine for small services / demos;
-    swap for Alembic migrations in a real production rollout so schema
-    changes are versioned and reviewable."""
-    from . import models  # noqa: F401  (ensure models are registered on Base.metadata)
+    from . import models  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

@@ -1,13 +1,3 @@
-"""Integration tests against a live stack.
-
-These require Postgres + Redis to be reachable (e.g. `docker compose up -d
-postgres redis` from the project root) and the app importable with a
-correctly configured EVENTSVC_DATABASE_URL / EVENTSVC_REDIS_URL.
-
-Run with:  pytest -m integration
-Skip in CI without infra with:  pytest -m "not integration"
-"""
-
 import uuid
 
 import pytest

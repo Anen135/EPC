@@ -9,13 +9,6 @@ from .schemas import EventIn
 
 
 async def insert_event(session: AsyncSession, event_in: EventIn) -> tuple[Event | None, bool]:
-    """Insert a single event. Returns (event, is_new).
-
-    Deduplication is done with a single atomic INSERT ... ON CONFLICT DO
-    NOTHING against the unique index on event_id, rather than a
-    check-then-insert. That avoids a race where two concurrent requests
-    for the same event_id both pass a SELECT check and both try to insert.
-    """
     stmt = (
         pg_insert(Event)
         .values(
@@ -43,15 +36,10 @@ async def insert_event(session: AsyncSession, event_in: EventIn) -> tuple[Event 
 async def insert_events_batch(
     session: AsyncSession, events_in: Sequence[EventIn]
 ) -> tuple[list[Event], set[str]]:
-    """Bulk insert with the same conflict-safe dedup semantics as
-    insert_event. Duplicates against existing rows AND repeats of the same
-    event_id within the batch itself are both reported as duplicates (only
-    the first occurrence of a repeated event_id in the batch is inserted).
-    Returns (inserted_events, duplicate_event_ids).
-    """
     seen: set[str] = set()
     intra_batch_duplicates: set[str] = set()
     deduped_values = []
+
     for e in events_in:
         if e.event_id in seen:
             intra_batch_duplicates.add(e.event_id)

@@ -31,9 +31,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
-
-# Exposes /metrics with standard HTTP request metrics (latency, status codes,
-# in-progress requests) in addition to the custom business metrics below.
 Instrumentator().instrument(app).expose(app, include_in_schema=False)
 
 
